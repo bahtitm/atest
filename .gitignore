@@ -1,0 +1,7 @@
+.vs/
+bin/
+obj/
+TestAtest.csproj
+TestAtest.csproj.user
+Properties/
+wwwwroot/
