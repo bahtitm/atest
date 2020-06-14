@@ -7,7 +7,7 @@ namespace TestAtest.Models
 {
     public class Donate
     {
-        public string amountOfDonationDonate { get; set; }
+        public int amountOfDonation { get; set; }
         public string Comment { get; set; }
 
 

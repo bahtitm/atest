@@ -4,9 +4,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using TestAtest.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -34,27 +38,21 @@ namespace TestAtest.Controllers.API
 
         // POST api/<controller>
         [HttpPost]
-        public HttpResponseMessage Post([FromBody]Donate donate)
+        public HttpResponseMessage Post(Donate donate)
         {
-
-
-            if (ModelState.IsValid && donate != null)
+           if (ModelState.IsValid && donate != null)
             {
-                // Convert any HTML markup in the status text.
-                donate.amountOfDonationDonate = HttpUtility.HtmlEncode(donate.amountOfDonationDonate);
-
-                // Assign a new ID.
+                RegisterOrder(donate);
                 var id = Guid.NewGuid();
                 donates[id] = donate;
 
-                // Create a 201 response.
                 var response = new HttpResponseMessage(HttpStatusCode.Created)
                 {
-                    Content = new StringContent(donate.amountOfDonationDonate)
+                    Content = new StringContent(donate.Comment)
                 };
-                response.Headers.Location =
-                    new Uri(Url.Link("DefaultApi", new { action = "status", id = id }));
+                Response.Redirect("https://www.google.com");
                 return response;
+                
             }
             else
             {
@@ -62,25 +60,56 @@ namespace TestAtest.Controllers.API
                 return response;
             }
 
-
-
-
-
         }
-        [HttpGet]
-        public Donate Status(Guid id)
+        private int GetSumASCIIcodFrom(string value)
         {
-            Donate donate;
-            if (donates.TryGetValue(id, out donate))
+            Encoding ascii = Encoding.ASCII;
+
+            Byte[] encodedBytes = ascii.GetBytes(value);
+            
+            int sumASCIIcode = 0;
+            foreach (Byte b in encodedBytes)
             {
-                return donate;
+                sumASCIIcode += b;
+                
             }
-            else
-            {
-                throw new HttpRequestException("exep");
-            }
+            return sumASCIIcode;
         }
-        // PUT api/<controller>/5
+        public async void RegisterOrder(Donate donate)
+        {
+            Order order = new Order();
+            order.UserName= "client10";
+
+            order.Password= GetSumASCIIcodFrom("client10-spasem-mir").ToString();
+            order.Amount = donate.amountOfDonation;
+            order.OrderNumber = Guid.NewGuid().ToString();
+            order.ReturnURL = "/api/SuccessURL";
+
+            order.FailURL = "/api/ErrorURL";
+            order.Descriptioin = donate.Comment;
+                        
+            
+            
+            var client = new HttpClient();
+            client.BaseAddress = new Uri("http://attest.turkmen-tranzit.com/payment/rest/register.do");
+            var json = JsonConvert.SerializeObject(order);
+
+            
+            var data = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync(client.BaseAddress,data);
+           string  result = response.Content.ReadAsStringAsync().Result;
+            var jsonData = JsonConvert.DeserializeObject<Dictionary<string, string>>(result);
+            foreach (var keyvalue in jsonData)
+            {
+
+                Console.WriteLine(keyvalue.Value + keyvalue.Value);  // this will only display the value of that
+                                               // attribute / key 
+
+            }
+            //Debug.WriteLine(result+"tut ya toje");
+            
+        }
         [HttpPut("{id}")]
         public void Put(int id, [FromBody]string value)
         {
