@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+ 
 <div>
     @*<div class="text-center">
         <h1 class="display-4">Welcome</h1>
@@ -18,6 +19,32 @@
         </form>
     </div>
     <div class="block2">
-        <form action="/" method="post"></form>
+        @{
+            foreach (Order item in @Model)
+            {
+                string classSpan ;
+                @switch (item.Status)
+                {
+                    case 2:
+                        classSpan = "text-success";
+                        break;
+                    case 1:
+                        classSpan = "text-danger";
+                        break;
+                    case -1:
+                        classSpan = "alert-danger";
+                        break;
+                    default:
+                        classSpan = "text-info";
+
+                        break;
+                }
+
+
+                <span class=@classSpan>@item.Amount</span>
+
+                <span class=@classSpan>@item.Descriptioin</span><br /> <br />
+            }
+        }
     </div>
  </div>

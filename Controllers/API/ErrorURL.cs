@@ -1,46 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
 
 namespace TestAtest.Controllers.API
 {
     [Route("api/[controller]")]
     public class ErrorURL : Controller
     {
-        // GET: api/<controller>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        OrderContext _context;
+        public ErrorURL(OrderContext context)
         {
-            return new string[] { "не", "все хорошо" };
-        }
+            _context=context;
 
-        // GET api/<controller>/5
+        }
+        
         [HttpGet("{id}")]
-        public string Get(int id)
+        public string Get(string id)
         {
-            return "value";
+                     
+                var order = _context.Orders.FirstOrDefault(e => (e.Id.Contains(id)));
+                order.Status = 1;
+                _context.Update(order);
+                _context.SaveChanges();
+                return "не успешно ";
+           
+            
         }
 
-        // POST api/<controller>
-        [HttpPost]
-        public void Post([FromBody]string value)
-        {
-        }
-
-        // PUT api/<controller>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE api/<controller>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        
     }
 }

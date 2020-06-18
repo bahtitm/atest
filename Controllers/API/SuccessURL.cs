@@ -1,46 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
+using TestAtest.HelperClass;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+
 
 namespace TestAtest.Controllers.API
 {
     [Route("api/[controller]")]
     public class SuccessURL : Controller
     {
-        // GET: api/<controller>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        Helper helper;
+        OrderContext _context;
+        public SuccessURL(IConfiguration conf, OrderContext context)
         {
-            return new string[] { "все", "хорошо" };
-        }
 
-        // GET api/<controller>/5
+            helper = new Helper(conf);
+            _context = context;
+
+        }
+       
         [HttpGet("{id}")]
-        public string Get(int id)
+        public string Get(string id, [FromQuery(Name = "orderId")] string orderId)
         {
-            return "value";
+            string status = helper.GetOrderStatus(orderId).Result;
+            dynamic parsejsonString = JObject.Parse(status);
+
+            if (parsejsonString.errorCode == 0 && parsejsonString.orderStatus == 2)
+            {
+                
+                var order =_context.Orders.FirstOrDefault(e => (e.Id.Contains(id)));
+                order.Status = 2;
+                _context.Update(order);
+                _context.SaveChanges();
+                return  "все хорошо" + status ;
+            }
+            else
+            {
+                var order = _context.Orders.FirstOrDefault(e => (e.Id.Contains(id)));
+                order.Status = -1;
+                _context.Update(order);
+                _context.SaveChanges();
+                return "не все хорошо" + status;
+            }
+            
         }
 
-        // POST api/<controller>
-        [HttpPost]
-        public void Post([FromBody]string value)
-        {
-        }
-
-        // PUT api/<controller>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE api/<controller>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+       
     }
 }
