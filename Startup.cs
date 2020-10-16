@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,6 +17,7 @@ namespace TestAtest
     public class Startup
     {
         private IConfigurationRoot _confstring;
+        private IMemoryCache _memoryCache;
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
@@ -28,8 +30,10 @@ namespace TestAtest
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            
-            services.AddDbContext<OrderContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddMemoryCache();
+            //services.AddDbContext<OrderContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<OrderContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+           // services.AddDbContext<OrderContext>(options => options.UseMemoryCache(_memoryCache));
 
         }
 

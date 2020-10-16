@@ -29,15 +29,8 @@ namespace TestAtest.Controllers
                 IEnumerable<Order> data;
                 data = _context.Orders.ToList<Order>();
                 return View(data);
-            
-                
-           
-            //    List<string> data = new List<string>();
-            //    data.Add("1");
-            //    data.Add("2");
-            //    data.Add("3");
-            //    data.Add("4");
-            //    return View(data);
+                         
+          
 
             
 
@@ -45,10 +38,7 @@ namespace TestAtest.Controllers
             
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+        
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
